@@ -28,12 +28,22 @@ function ding_custom_reservation_menu() {
 
   $items['ting/object/%ting_object/customreserve'] = array(
     'page callback' => 'ding_custom_reservation_reserve_ajax',
-    'page arguments' => array(2),
+    'page arguments' => array(2,4),
     'delivery callback' => 'ajax_deliver',
     'access arguments' => array('perform reservation'),
   );
 
   return $items;
+}
+
+function ding_custom_reservation_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'ding_entity_buttons') {
+    file_put_contents("/var/www/drupalvm/drupal/web/debug/res10.txt", print_r($implementations , TRUE), FILE_APPEND);
+    if (isset($implementations['ding_reservation'])) {
+      unset($implementations['ding_reservation']);
+    }
+    file_put_contents("/var/www/drupalvm/drupal/web/debug/res11.txt", print_r($implementations , TRUE), FILE_APPEND);
+  }
 }
 
 function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form, &$form_state, $reservable, $hide_options = FALSE) {
@@ -44,10 +54,13 @@ function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form
     }
     if (isset($form['provider_options']['interest_period'])) {
       $form['provider_options']['interest_period']['#options'] = ding_custom_reservation_interest_periods();
+      $form['provider_options']['interest_period']['#default_value'] = variable_get('ding_custom_reservations_interest_period');
     }
   }
+  $form['#validate'] = ['ding_custom_reservation_reserve_form_validate'];
+
   file_put_contents("/var/www/drupalvm/drupal/web/debug/res7.txt", print_r(variable_get('ding_custom_reservations_interest_period'), TRUE), FILE_APPEND);
-  variable_del('ding_custom_reservations_interest_period');
+  //variable_del('ding_custom_reservations_interest_period');
   file_put_contents("/var/www/drupalvm/drupal/web/debug/res6.txt", print_r(variable_get('ding_custom_reservations_interest_period'), TRUE), FILE_APPEND);
 }
 
@@ -56,8 +69,8 @@ function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form
  * Implements hook_ding_entity_buttons().
  */
 function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode, $widget = 'default') {
-  $interest_periods = ding_custom_reservation_interest_periods();
-  file_put_contents("/var/www/drupalvm/drupal/web/debug/res5.txt", print_r($interest_periods, TRUE), FILE_APPEND);
+  //$interest_periods = ding_custom_reservation_interest_periods();
+  //file_put_contents("/var/www/drupalvm/drupal/web/debug/res5.txt", print_r($interest_periods, TRUE), FILE_APPEND);
   $button = '';
 
   if ($type == 'ding_entity' && $entity->is('library_material')) {
@@ -65,8 +78,8 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
       case 'ajax':
         // The AJAX-widget will use AJAX-request for checking reservability and
         // also when performing the reservation.
-        $button = array(
-          array(
+        $button = [];
+        $button[] = [
             '#theme' => 'link',
             '#text' => t('Reserve2'),
             '#path' => 'ting/object/' . $entity->id . '/customreserve',
@@ -93,8 +106,37 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
                 array('system', 'drupal.ajax'),
               ),
             ),
-          ),
-        );
+        ];
+        if (variable_get('ding_custom_reservation_secondary_reservation_button', FALSE)) {
+          $button[] = [
+            '#theme' => 'link',
+            '#text' => t(variable_get('ding_custom_reservation_secondary_reservation_button_text', '')),
+            '#path' => 'ting/object/' . $entity->id . '/customreserve/fast',
+            '#options' => array(
+              'attributes' => array(
+                'class' => array(
+                  'action-button',
+                  'reserve-button',
+                  'use-ajax',
+                  'js-check-reservability',
+                ),
+                'data-local-id' => $entity->localId,
+              ),
+              'html' => FALSE,
+            ),
+            '#attached' => array(
+              'js' => array(
+                array(
+                  'type' => 'file',
+                  'data' => drupal_get_path('module', 'ding_reservation') . '/js/ding_reservation_reservability.js',
+                ),
+              ),
+              'library' => array(
+                array('system', 'drupal.ajax'),
+              ),
+            ),
+        ];
+        }
         break;
 
       default:
@@ -129,7 +171,8 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
  * @return array
  *   Render array with Ajax commands.
  */
-function ding_custom_reservation_reserve_ajax($entity, $reservable = NULL) {
+function ding_custom_reservation_reserve_ajax($entity, $fast = null, $reservable = NULL) {
+  file_put_contents("/var/www/drupalvm/drupal/web/debug/res12.txt", print_r($fast, TRUE), FILE_APPEND);
   file_put_contents("/var/www/drupalvm/drupal/web/debug/res2.txt", print_r($entity , TRUE), FILE_APPEND);
   $commands = array();
 
@@ -149,15 +192,28 @@ function ding_custom_reservation_reserve_ajax($entity, $reservable = NULL) {
   }
   else {
     // Check if reservable object was paste.
-    if (is_null($reservable)) {
-      // If no object passed assume "normal" reservation (not periodical).
-      $reservable = new DingReservationReservableEntity($entity);
-    }
+    // if (is_null($reservable)) {
+    //   // If no object passed assume "normal" reservation (not periodical).
+    //   $reservable = new DingReservationReservableEntity($entity);
+    // }
 
     // Try to make reservation.
     try {
-      $form = ding_provider_get_form('ding_reservation_reserve_form', $reservable, FALSE);
-      $commands[] = ajax_command_ding_popup('ding_reservation', t('Reservation'), render($form));
+      $reservable = new DingReservationReservableEntity($entity);
+      if ($fast != null) {
+        file_put_contents("/var/www/drupalvm/drupal/web/debug/res14.txt", print_r($entity, TRUE), FILE_APPEND);
+        file_put_contents("/var/www/drupalvm/drupal/web/debug/res16.txt", print_r($reservable, TRUE), FILE_APPEND);
+        $interest_period = variable_get('ding_custom_reservation_secondary_reservation_button_interest_period', 60);
+        $form_state = [];
+        $form_state['values']['provider_options']['interest_period'] = $interest_period;
+        drupal_form_submit('ding_reservation_reserve_form', $form_state, $reservable);
+        $message = drupal_get_messages();
+        file_put_contents("/var/www/drupalvm/drupal/web/debug/res17.txt", print_r($message, TRUE), FILE_APPEND);
+        $commands[] = ajax_command_ding_popup('ding_reservation', t('Reservation'), $message, array('refresh' => TRUE));
+      } else {
+        $form = ding_provider_get_form('ding_reservation_reserve_form', $reservable, FALSE);
+        $commands[] = ajax_command_ding_popup('ding_reservation', t('Reservation'), render($form));
+      }
     }
     catch (DingProviderAuthException $exception) {
       // The form may have thrown an Auth exception, so display login. (the
@@ -182,6 +238,7 @@ function ding_custom_reservation_reserve_ajax($entity, $reservable = NULL) {
  * Reserve form validation.
  */
 function ding_custom_reservation_reserve_form_validate($form, &$form_state) {
+  file_put_contents("/var/www/drupalvm/drupal/web/debug/res15.txt", print_r($form , TRUE), FILE_APPEND);
   global $user;
   if (!(user_is_logged_in() && ding_user_is_provider_user($user))) {
     throw new DingProviderAuthException();

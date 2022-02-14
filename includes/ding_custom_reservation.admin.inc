@@ -33,42 +33,38 @@ function ding_custom_reservation_admin_form($form, &$form_state) {
     '#title' => t('Reservation button interest period'),
     '#options' => $periods,
     '#required' => TRUE,
-    '#default_value' => variable_get('ding_custom_reservations_interest_period', $default),
+    '#default_value' => variable_get('ding_custom_reservations_interest_period'),
   );
 
   $form['ding_custom_reservation_secondary_reservation_button'] = array(
     '#type' => 'checkbox',
     '#title' => t('Secondary reservation button'),
     '#description' => t('Show secondary reservation button with alternative fixed interestperiod.'),
-    '#default_value' => variable_get('fbs_secondary_reservation_button', FALSE),
+    '#default_value' => variable_get('ding_custom_reservation_secondary_reservation_button', FALSE),
   );
 
-  $form['ding_custom_reservations_secondary_reservation_button_interest_period'] = array(
+  $form['ding_custom_reservation_secondary_reservation_button_interest_period'] = array(
     '#type' => 'select',
     '#title' => t('Secondary reservation button interest period'),
     '#options' => $periods,
     '#required' => TRUE,
-    '#default_value' => variable_get('fbs_secondary_reservation_button_interest_period', $default),
+    '#default_value' => variable_get('ding_custom_reservation_secondary_reservation_button_interest_period', 60),
     '#states' => array(
       'visible' => array(
-        ':input[name="fbs_secondary_reservation_button"]' => array('checked' => TRUE),
+        ':input[name="ding_custom_reservation_secondary_reservation_button"]' => array('checked' => TRUE),
       ),
     ),
   );
 
-  $form['ding_custom_reservation_secondary_reservation_button_text'] = array(
+  $form['ding_custom_reservation_secondary_reservation_button_text'] = [
     '#type' => 'textfield',
     '#title' => t('Secondary reservation button text'),
-    '#default_value' => variable_get('fbs_secondary_reservation_button_text', ''),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="fbs_secondary_reservation_button"]' => array('checked' => TRUE),
-      ),
-      'required' => array(
-        ':input[name="fbs_secondary_reservation_button"]' => array('checked' => TRUE),
-      )
-    ),
-  );
+    '#default_value' => variable_get('ding_custom_reservation_secondary_reservation_button_text', ''),
+    '#states' => [
+      'visible' => [':input[name="ding_custom_reservation_secondary_reservation_button"]' => ['checked' => TRUE],],
+      'required' => [':input[name="ding_custom_reservation_secondary_reservation_button"]' => ['checked' => TRUE],]
+      ],
+    ];
 
   return system_settings_form($form);
 }
