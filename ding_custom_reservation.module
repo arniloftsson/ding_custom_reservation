@@ -45,6 +45,15 @@ function ding_custom_reservation_module_implements_alter(&$implementations, $hoo
 }
 
 /**
+ * Implements hook_form_profile2_edit_PROFILE_TYPE_form_alter().
+ *
+ * Removes the reduntant interest period field.
+ */
+function ding_custom_reservation_form_profile2_edit_provider_fbs_form_alter(&$form, &$form_state) {
+  $form['profile_provider_fbs']['field_fbs_interest_period']['#access'] = false;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  *
  * Alters the ding_reservation_reserve_form with custom interest periods.
