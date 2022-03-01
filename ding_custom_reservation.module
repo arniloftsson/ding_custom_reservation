@@ -86,7 +86,7 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
         $button = [];
         $button[] = [
             '#theme' => 'link',
-            '#text' => t('Reserve2'),
+            '#text' => t('Reserve'),
             '#path' => 'ting/object/' . $entity->id . '/customreserve',
             '#options' => [
               'attributes' => [
@@ -143,7 +143,7 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
         ];
         }
         break;
-
+      // TODO. Unsure if this is ever reached. Would invoke the standard resevation flow.
       default:
         // The last parameter to the form below (TRUE) hides the provider
         // options in the form (interest period and branch).
@@ -263,9 +263,6 @@ function ding_custom_reservation_default_interest_periods() {
 
 /**
  * Get interest periods.
- *
- * @return array
- *   Array of days => human readable string.
  */
 function ding_custom_reservation_interest_periods() {
   return variable_get('ding_custom_reservation_interest_periods', ding_custom_reservation_default_interest_periods());
