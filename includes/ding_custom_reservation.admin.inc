@@ -31,7 +31,7 @@ function ding_custom_reservation_admin_form($form, &$form_state) {
   $form['ding_custom_reservation_secondary_reservation_button'] = [
     '#type' => 'checkbox',
     '#title' => t('Secondary reservation button'),
-    '#description' => t('Show secondary reservation button with alternative fixed interestperiod.'),
+    '#description' => t('Show secondary reservation button with alternative fixed interest period.'),
     '#default_value' => variable_get('ding_custom_reservation_secondary_reservation_button', FALSE),
   ];
 
@@ -53,8 +53,8 @@ function ding_custom_reservation_admin_form($form, &$form_state) {
     '#title' => t('Secondary reservation button text'),
     '#default_value' => variable_get('ding_custom_reservation_secondary_reservation_button_text', ''),
     '#states' => [
-      'visible' => [':input[name="ding_custom_reservation_secondary_reservation_button"]' => ['checked' => TRUE],],
-      'required' => [':input[name="ding_custom_reservation_secondary_reservation_button"]' => ['checked' => TRUE],]
+      'visible' => [':input[name="ding_custom_reservation_secondary_reservation_button"]' => ['checked' => TRUE]],
+      'required' => [':input[name="ding_custom_reservation_secondary_reservation_button"]' => ['checked' => TRUE]],
       ],
     ];
 
@@ -70,6 +70,7 @@ function ding_custom_reservation_interest_periods_strings() {
   foreach ($periods as $key => $value) {
     $periods_string[] = "$key|$value";
   }
+
   return implode("\n", $periods_string);
 }
 
