@@ -34,7 +34,7 @@ function ding_custom_reservation_menu() {
 /**
  * Implements hook_module_implements_alter().
  *
- * This module overriddes the reservation button provided in ding_reservation so that hook is removed.
+ * This module overrides the reservation button provided in ding_reservation so that hook is removed.
  */
 function ding_custom_reservation_module_implements_alter(&$implementations, $hook) {
   if ($hook == 'ding_entity_buttons') {
@@ -47,7 +47,7 @@ function ding_custom_reservation_module_implements_alter(&$implementations, $hoo
 /**
  * Implements hook_form_profile2_edit_PROFILE_TYPE_form_alter().
  *
- * Removes the reduntant interest period field.
+ * Removes the redundant interest period field.
  */
 function ding_custom_reservation_form_profile2_edit_provider_fbs_form_alter(&$form, &$form_state) {
   $form['profile_provider_fbs']['field_fbs_interest_period']['#access'] = false;
@@ -81,8 +81,8 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
   if ($type == 'ding_entity' && $entity->is('library_material')) {
     switch ($widget) {
       case 'ajax':
-        // The AJAX-widget will use AJAX-request for checking reservability and
-        // also when performing the reservation.
+        // The AJAX-widget will use AJAX-request for checking if entity is
+        // reservable and also when performing the reservation.
         $button = [];
         $button[] = [
             '#theme' => 'link',
@@ -112,6 +112,7 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
               ],
             ],
         ];
+
         if (variable_get('ding_custom_reservation_secondary_reservation_button', FALSE)) {
           $button[] = [
             '#theme' => 'link',
@@ -143,7 +144,8 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
         ];
         }
         break;
-      // TODO. Unsure if this is ever reached. Would invoke the standard resevation flow.
+
+      // TODO. Unsure if this is ever reached. Would invoke the standard reservation flow.
       default:
         // The last parameter to the form below (TRUE) hides the provider
         // options in the form (interest period and branch).
@@ -181,7 +183,7 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
 function ding_custom_reservation_reserve_ajax($entity, $fast = null, $reservable = NULL) {
   $commands = array();
 
-  // Check if the logged in user is a library user.
+  // Check if the logged-in user is a library user.
   global $user;
   if (!user_is_logged_in()) {
     // Trigger log-in (the reservation link will be triggered on success).
