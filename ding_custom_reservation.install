@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Handles installation/un-installation of ding custom reserveration module.
+ */
+
+ /**
+ * Implements hook_uninstall().
+ */
+function ding_custom_reservation_uninstall() {
+  // Unset variables.
+  variable_del('ding_custom_reservations_interest_period');
+  variable_del('ding_custom_reservation_secondary_reservation_button');
+  variable_del('ding_custom_reservation_secondary_reservation_button_interest_period');
+  variable_del('ding_custom_reservation_secondary_reservation_button_text');
+  variable_del('ding_custom_reservation_interest_periods');
+}
+
+ 
