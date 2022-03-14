@@ -5,6 +5,54 @@
  * Handles installation/un-installation of ding custom reserveration module.
  */
 
+  /**
+ * Implements hook_schema().
+ */
+function ding_custom_reservation_schema() {
+  $schema['ding_custom_reservation_statistics'] = array(
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'reservationtype' => array(
+        'description' => 'The type off reservation',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'interestperiod' => array(
+        'description' => 'The interest period',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'materialtype' => array(
+        'description' => 'The type off the material',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'day' => array(
+        'description' => 'Day query was performed.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array(
+      'id',
+    ),
+  );
+  return $schema;
+}
+
  /**
  * Implements hook_uninstall().
  */

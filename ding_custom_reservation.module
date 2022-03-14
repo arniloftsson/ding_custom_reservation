@@ -4,6 +4,9 @@
  * Customizes reservation flow for users.
  */
 
+define('DING_CUSTOM_RESERVATION_PRIMARY_BUTTON', 0);
+define('DING_CUSTOM_RESERVATION_SECONDARY_BUTTON', 1);
+
 /**
  * Implements hook_menu().
  *
@@ -70,7 +73,6 @@ function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form
   }
   $form['#validate'] = ['ding_custom_reservation_reserve_form_validate'];
 }
-
 
 /**
  * Implements hook_ding_entity_buttons().
@@ -158,7 +160,6 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
         break;
     }
   }
-
   return $button;
 }
 
@@ -206,6 +207,7 @@ function ding_custom_reservation_reserve_ajax($entity, $fast = null, $reservable
         $interest_period = variable_get('ding_custom_reservation_secondary_reservation_button_interest_period', 60);
         $form_state = [];
         $form_state['values']['provider_options']['interest_period'] = $interest_period;
+        $form_state['values']['reservation_type'] = DING_CUSTOM_RESERVATION_SECONDARY_BUTTON;
 
         drupal_form_submit('ding_reservation_reserve_form', $form_state, $reservable);
         $status_messages = theme('status_messages');
@@ -243,6 +245,55 @@ function ding_custom_reservation_reserve_form_validate($form, &$form_state) {
   if (!(user_is_logged_in() && ding_user_is_provider_user($user))) {
     throw new DingProviderAuthException();
   }
+  ding_custom_reservation_log_statistics($form_state);
+}
+
+/**
+ * Log reservation for statistics.
+ */
+function ding_custom_reservation_log_statistics($form_state) {
+  $material_type = '';
+  $interest_period = 0;
+  $reservation_type = DING_CUSTOM_RESERVATION_PRIMARY_BUTTON;
+
+  if (isset($form_state['values'])) {
+    if (isset($form_state['values']['reservable']) && is_a($form_state['values']['reservable'], 'DingReservationReservableEntity')) {
+      $object = $form_state['values']['reservable'];
+      $material_type = $object->getEntity()->getType();
+    }
+    if (isset($form_state['values']['provider_options']) && isset($form_state['values']['provider_options']['interest_period']) ) {
+      $interest_period = $form_state['values']['provider_options']['interest_period'];
+    }
+  }
+  if (empty($material_type) || $interest_period == 0) {
+    // Somethings wrong. Don't log statistics.
+    return;
+  }
+  if (isset($form_state['input']) && isset($form_state['input']['reservation_type'])) {
+    $reservation_type = DING_CUSTOM_RESERVATION_SECONDARY_BUTTON;
+  }
+  $date = _ding_custom_reservation_get_day();
+  //file_put_contents("/var/www/drupalvm/drupal/web/debug/stat5.txt", print_r($material_type . ' ' . $interest_period . ' ' . ' ' . $date, TRUE), FILE_APPEND);
+  ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date);
+}
+
+/**
+ * Update statistics table.
+ */
+function ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date) {
+  try {
+    db_insert('ding_custom_reservation_statistics')
+    ->fields(array(
+        'reservationtype' => $reservation_type,
+        'interestperiod' => $interest_period,
+        'materialtype' => $material_type,
+        'day' => $date,
+        ))
+    ->execute();
+
+  } catch (\Exception $e) {
+    //throw $th;
+  }
 }
 
 /**
@@ -268,4 +319,13 @@ function ding_custom_reservation_default_interest_periods() {
  */
 function ding_custom_reservation_interest_periods() {
   return variable_get('ding_custom_reservation_interest_periods', ding_custom_reservation_default_interest_periods());
+}
+
+/**
+ * Utility time function.
+ *
+ * Effectively returns time() rounded down to nearest day.
+ */
+function _ding_custom_reservation_get_day() {
+  return mktime(0, 0, 0);;
 }
