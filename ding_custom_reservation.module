@@ -24,6 +24,16 @@ function ding_custom_reservation_menu() {
     'type' => MENU_NORMAL_ITEM,
   ];
 
+  $items['admin/config/ding/customreservation/statistics'] = [
+    'title' => 'Ding custom reservation Statistics',
+    'description' => 'Statistics for custom reservations module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['ding_custom_reservation_statistics_form'],
+    'access arguments' => ['administer site configuration'],
+    'file' => 'includes/ding_custom_reservation.statistics.inc',
+    'type' =>  MENU_LOCAL_TASK,
+  ];
+
   $items['ting/object/%ting_object/customreserve'] = array(
     'page callback' => 'ding_custom_reservation_reserve_ajax',
     'page arguments' => array(2,4),
