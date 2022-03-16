@@ -11,18 +11,6 @@
 function ding_custom_reservation_statistics_form($form, &$form_state)
 {
   $form = [];
-  $from_date = date("Y-m-d");
-  $to_date = date("Y-m-d");
-
-  if (isset($_SESSION['ding_custom_reservation_statistics'])) {
-    if (isset($_SESSION['ding_custom_reservation_statistics']['from'])) {
-      $from_date = $_SESSION['ding_custom_reservation_statistics']['from'];
-    }
-    if (isset($_SESSION['ding_custom_reservation_statistics']['to'])) {
-      $to_date = $_SESSION['ding_custom_reservation_statistics']['to'];
-    }
-  }
-
 
   $form['period'] = array(
     '#type' => 'fieldset',
@@ -32,20 +20,27 @@ function ding_custom_reservation_statistics_form($form, &$form_state)
   $form['period']['from_date'] = array(
     '#type' => 'date',
     '#title' => t('From'),
-    '#default_value' => $from_date,
   );
 
   $form['period']['to_date'] = array(
     '#type' => 'date',
     '#title' => t('To'),
-    '#default_value' => $to_date,
     '#description' => t('Enter custom period for reservation statistics.'),
   );
+
+  if (isset($_SESSION['ding_custom_reservation_statistics'])) {
+    if (isset($_SESSION['ding_custom_reservation_statistics']['from'])) {
+      $form['period']['from_date']['#default_value'] = $_SESSION['ding_custom_reservation_statistics']['from'];
+    }
+    if (isset($_SESSION['ding_custom_reservation_statistics']['to'])) {
+      $form['period']['to_date']['#default_value'] = $_SESSION['ding_custom_reservation_statistics']['to'];
+    }
+  }
 
   $form['period']['submit_period'] = array(
     '#value' => t('Filter by date'),
     '#type' => 'submit',
-    // '#validate' => array('ting_smart_search_import_form_validate'),
+    '#validate' => array('ding_custom_reservation_statistics_form_validate'),
     '#submit' => array('ding_custom_reservation_statistics_form_submit'),
   );
   $header = [t('Interest Period'), t('Count')];
@@ -75,6 +70,23 @@ function ding_custom_reservation_statistics_form($form, &$form_state)
 }
 
 /**
+ * Statistics report filter submit.
+ */
+function ding_custom_reservation_statistics_form_validate($form, &$form_state)
+{
+  file_put_contents("/var/www/drupalvm/drupal/web/debug/stat4.txt", print_r($form, TRUE), FILE_APPEND);
+  if (isset($form_state['values']['from_date']) && isset($form_state['values']['to_date'])) {
+    $date = $form_state['values']['from_date'];
+    $from_date = mktime(0, 0, 0, $date['month'], $date['day'], $date['year']);
+    $date = $form_state['values']['to_date'];
+    $to_date = mktime(0, 0, 0, $date['month'], $date['day'], $date['year']);
+    if ($from_date > $to_date) {
+      form_set_error('from_date', t('From date cannot be after To date.'));
+    }
+  }
+}
+
+/**
  * Report filter submit.
  */
 function ding_custom_reservation_statistics_form_submit($form, &$form_state)
@@ -100,10 +112,13 @@ function ding_custom_reservation_statistics_form_get_data()
     if (isset($_SESSION['ding_custom_reservation_statistics']['from'])) {
       $date = $_SESSION['ding_custom_reservation_statistics']['from'];
       $from_date = mktime(0, 0, 0, $date['month'], $date['day'], $date['year']);
+      unset($_SESSION['ding_custom_reservation_statistics']['from']);
     }
     if (isset($_SESSION['ding_custom_reservation_statistics']['to'])) {
       $date = $_SESSION['ding_custom_reservation_statistics']['to'];
       $to_date = mktime(0, 0, 0, $date['month'], $date['day'], $date['year']);
+      unset($_SESSION['ding_custom_reservation_statistics']['to']);
+      unset($_SESSION['ding_custom_reservation_statistics']);
     }
   }
 
@@ -141,8 +156,9 @@ function ding_custom_reservation_statistics_form_db_query($reservation_type, $fr
       $total_count += $data->reservation_count;
     };
     $results[] = [t('Total count'), $total_count];
-  } catch (\Throwable $th) {
-    //throw $th;
+  } catch (Exception $e) {
+    watchdog_exception('ding_custom_reservation', $e,'Fetching statisticsdata from database failed');
+    drupal_set_message('Failed to get data from the database', 'error');
   }
   return $results;
 }

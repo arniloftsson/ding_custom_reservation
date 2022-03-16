@@ -45,6 +45,27 @@ function ding_custom_reservation_menu() {
 }
 
 /**
+ * Implements hook_cron().
+ *
+ * Expire outdated statistic entries.
+ */
+function ding_custom_reservation_cron() {
+  $days = (int) variable_get('ding_custom_reservation_keep_statistics_days', 0);
+  if ($days != 0) {
+    // Get timestamp for 00:00 today minus days.
+    $day = _ding_custom_reservation_get_day() - $days * 86400;
+
+    try {
+    db_delete('ding_custom_reservation_statistics')
+      ->condition('day', $day, '<')
+      ->execute();
+    } catch (Exception $e) {
+      watchdog('ding_custom_reservation', 'Failed to delete old statistics from the database: %message', ['%message'=> $e->getMessage()], WATCHDOG_ERROR);
+    }
+  }
+}
+
+/**
  * Implements hook_module_implements_alter().
  *
  * This module overrides the reservation button provided in ding_reservation so that hook is removed.
@@ -283,7 +304,6 @@ function ding_custom_reservation_log_statistics($form_state) {
     $reservation_type = DING_CUSTOM_RESERVATION_SECONDARY_BUTTON;
   }
   $date = _ding_custom_reservation_get_day();
-  //file_put_contents("/var/www/drupalvm/drupal/web/debug/stat5.txt", print_r($material_type . ' ' . $interest_period . ' ' . ' ' . $date, TRUE), FILE_APPEND);
   ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date);
 }
 
@@ -301,8 +321,8 @@ function ding_custom_reservation_statistics_update_db($reservation_type, $intere
         ))
     ->execute();
 
-  } catch (\Exception $e) {
-    //throw $th;
+  } catch (Exception $e) {
+    watchdog('ding_custom_reservation', 'Failed to insert statistics data to database: %message', ['%message'=> $e->getMessage()], WATCHDOG_ERROR);
   }
 }
 

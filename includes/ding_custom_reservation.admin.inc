@@ -58,6 +58,14 @@ function ding_custom_reservation_admin_form($form, &$form_state) {
       ],
     ];
 
+  $form['ding_custom_reservation_keep_statistics_days'] = [
+    '#type' => 'textfield',
+    '#title' => t('How many days to keep statistics'),
+    '#default_value' => variable_get('ding_custom_reservation_keep_statistics_days', 0),
+    '#description' => t('Statistics table can be automatically truncated by cron. Set to 0 to never truncate Search log table.'),
+    '#size' => 4,
+  ];
+
   return system_settings_form($form);
 }
 
