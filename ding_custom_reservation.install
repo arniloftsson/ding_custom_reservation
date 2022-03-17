@@ -63,6 +63,9 @@ function ding_custom_reservation_uninstall() {
   variable_del('ding_custom_reservation_secondary_reservation_button_interest_period');
   variable_del('ding_custom_reservation_secondary_reservation_button_text');
   variable_del('ding_custom_reservation_interest_periods');
+  variable_del('ding_custom_reservation_title_text');
+  variable_del('ding_custom_reservation_title_description');
+  variable_del('ding_custom_reservation_keep_statistics_days');
 }
 
  

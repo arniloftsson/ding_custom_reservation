@@ -3,3 +3,4 @@ description = Adds a custom reservation flow
 package = Ding!
 core = 7.x
 dependencies[] = ding_reservation
+stylesheets[all][] = css/ding_custom_reservation.css

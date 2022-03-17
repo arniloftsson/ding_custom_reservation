@@ -24,14 +24,21 @@ function ding_custom_reservation_menu() {
     'type' => MENU_NORMAL_ITEM,
   ];
 
+  $items['admin/config/ding/customreservation/settings'] = array(
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => 'Custom reservation settings',
+    'weight' => 1,
+  );
+
   $items['admin/config/ding/customreservation/statistics'] = [
-    'title' => 'Ding custom reservation Statistics',
+    'title' => 'Custom reservation statistics',
     'description' => 'Statistics for custom reservations module',
     'page callback' => 'drupal_get_form',
     'page arguments' => ['ding_custom_reservation_statistics_form'],
     'access arguments' => ['administer site configuration'],
     'file' => 'includes/ding_custom_reservation.statistics.inc',
     'type' =>  MENU_LOCAL_TASK,
+    'weight' => 2,
   ];
 
   $items['ting/object/%ting_object/customreserve'] = array(
@@ -95,14 +102,34 @@ function ding_custom_reservation_form_profile2_edit_provider_fbs_form_alter(&$fo
 function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form, &$form_state, $reservable, $hide_options = FALSE) {
   if (isset($form['provider_options'])) {
     if (isset($form['provider_options']['fbs_preferred_branch'])) {
-      unset ($form['provider_options']['fbs_preferred_branch']);
+      unset($form['provider_options']['fbs_preferred_branch']);
     }
     if (isset($form['provider_options']['interest_period'])) {
       $form['provider_options']['interest_period']['#options'] = ding_custom_reservation_interest_periods();
       $form['provider_options']['interest_period']['#default_value'] = variable_get('ding_custom_reservations_interest_period');
     }
   }
+  $title = variable_get('ding_custom_reservation_title_text', t('Reservation'));
+  $description = variable_get('ding_custom_reservation_title_description', '');
+
+  $form['customtitle'] = array(
+    '#markup' => '<div class="popupbar-title"><strong>' . $title . '</strong></div>',
+    '#weight' => '-20',
+  );
+
+  if (!empty($description)) {
+    $form['customdescription'] = array(
+      '#prefix' => '<div class="form-item form-type-markup description">',
+      '#markup' => check_markup($description),
+      '#suffix' => '</div>',
+      '#weight' => '-10',
+    );
+  }
+
   $form['#validate'] = ['ding_custom_reservation_reserve_form_validate'];
+
+  // Add JS to handle focus off.
+  $form['#attached']['js'] = [drupal_get_path('module', 'ding_custom_reservation') . '/js/ding_custom_reservation.js'];
 }
 
 /**
@@ -118,32 +145,32 @@ function ding_custom_reservation_ding_entity_buttons($type, $entity, $view_mode,
         // reservable and also when performing the reservation.
         $button = [];
         $button[] = [
-            '#theme' => 'link',
-            '#text' => t('Reserve'),
-            '#path' => 'ting/object/' . $entity->id . '/customreserve',
-            '#options' => [
-              'attributes' => [
-                'class' => [
-                  'action-button',
-                  'reserve-button',
-                  'use-ajax',
-                  'js-check-reservability',
-                ],
-                'data-local-id' => $entity->localId,
+          '#theme' => 'link',
+          '#text' => t('Reserve'),
+          '#path' => 'ting/object/' . $entity->id . '/customreserve',
+          '#options' => [
+            'attributes' => [
+              'class' => [
+                'action-button',
+                'reserve-button',
+                'use-ajax',
+                'js-check-reservability',
               ],
-              'html' => FALSE,
+              'data-local-id' => $entity->localId,
             ],
-            '#attached' => [
-              'js' => [
-                [
-                  'type' => 'file',
-                  'data' => drupal_get_path('module', 'ding_reservation') . '/js/ding_reservation_reservability.js',
-                ],
-              ],
-              'library' => [
-                ['system', 'drupal.ajax'],
+            'html' => FALSE,
+          ],
+          '#attached' => [
+            'js' => [
+              [
+                'type' => 'file',
+                'data' => drupal_get_path('module', 'ding_reservation') . '/js/ding_reservation_reservability.js',
               ],
             ],
+            'library' => [
+              ['system', 'drupal.ajax'],
+            ],
+          ],
         ];
 
         if (variable_get('ding_custom_reservation_secondary_reservation_button', FALSE)) {

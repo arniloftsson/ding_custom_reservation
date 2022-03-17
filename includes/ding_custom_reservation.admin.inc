@@ -22,10 +22,22 @@ function ding_custom_reservation_admin_form($form, &$form_state) {
 
   $form['ding_custom_reservations_interest_period'] = [
     '#type' => 'select',
-    '#title' => t('Reservation button interest period'),
+    '#title' => t('Default interest period'),
     '#options' => ding_custom_reservation_interest_periods(),
     '#required' => TRUE,
     '#default_value' => variable_get('ding_custom_reservations_interest_period'),
+  ];
+
+  $form['ding_custom_reservation_title_text'] = [
+    '#type' => 'textfield',
+    '#title' => t('Title off reservation popup'),
+    '#default_value' => variable_get('ding_custom_reservation_title_text', t('Reservation')),
+  ];
+
+  $form['ding_custom_reservation_title_description'] = [
+    '#type' => 'textfield',
+    '#title' => t('Description off reservation popup'),
+    '#default_value' => variable_get('ding_custom_reservation_title_description', ''),
   ];
 
   $form['ding_custom_reservation_secondary_reservation_button'] = [
