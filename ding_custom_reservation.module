@@ -24,11 +24,11 @@ function ding_custom_reservation_menu() {
     'type' => MENU_NORMAL_ITEM,
   ];
 
-  $items['admin/config/ding/customreservation/settings'] = array(
+  $items['admin/config/ding/customreservation/settings'] = [
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'title' => 'Custom reservation settings',
     'weight' => 1,
-  );
+  ];
 
   $items['admin/config/ding/customreservation/statistics'] = [
     'title' => 'Custom reservation statistics',

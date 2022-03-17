@@ -42,8 +42,8 @@ function ding_custom_reservation_statistics_form($form, &$form_state) {
     '#validate' => array('ding_custom_reservation_statistics_form_validate'),
     '#submit' => array('ding_custom_reservation_statistics_form_submit'),
   );
-  $header = [t('Interest Period'), t('Count')];
 
+  $header = [t('Interest Period'), t('Count')];
   $results = ding_custom_reservation_statistics_form_get_data();
 
   $primary_button = theme('table', ['header' => $header, 'rows' => $results['primary_button']]);
@@ -87,8 +87,10 @@ function ding_custom_reservation_statistics_form_validate($form, &$form_state) {
   if (isset($form_state['values']['from_date']) && isset($form_state['values']['to_date'])) {
     $date = $form_state['values']['from_date'];
     $from_date = mktime(0, 0, 0, $date['month'], $date['day'], $date['year']);
+
     $date = $form_state['values']['to_date'];
     $to_date = mktime(0, 0, 0, $date['month'], $date['day'], $date['year']);
+
     if ($from_date > $to_date) {
       form_set_error('from_date', t('From date cannot be after To date.'));
     }
@@ -162,6 +164,7 @@ function ding_custom_reservation_statistics_form_db_query($reservation_type, $fr
       $total_count += $data->reservation_count;
     };
     $results[] = [t('Total count'), $total_count];
+
   } catch (Exception $e) {
     watchdog_exception('ding_custom_reservation', $e,'Fetching statisticsdata from database failed');
     drupal_set_message('Failed to get data from the database', 'error');
@@ -175,6 +178,7 @@ function ding_custom_reservation_statistics_form_db_query($reservation_type, $fr
 function ding_custom_reservation_statistics_form_export($form, &$form_state) {
   $path = file_build_uri('CustomReservationStatistics-' . date('d-m-Y-H-i') . '.csv');
   $destination = drupal_realpath($path);
+
   try {
     $data = ding_custom_reservation_statistics_get_all_records();
 
@@ -190,6 +194,7 @@ function ding_custom_reservation_statistics_form_export($form, &$form_state) {
       $headers = array('Content-Disposition' => 'attachment; filename="' . $path  . '"');
       file_transfer($path, $headers);
     }
+
   } catch (Exception $e) {
     watchdog_exception('ding_custom_reservation', $e, 'Export off records from database failed');
     drupal_set_message('Export off records from database failed', 'error');
