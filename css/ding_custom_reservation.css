@@ -11,5 +11,11 @@
   margin-bottom: 5px;
 }
 
+.form-item-provider-options-interest-period .select-wrapper:focus-within {
+	border: 1px solid #000;
+}
 
-
+.action-button.reserve-button:focus {
+  background-color: #808285;
+  color: #fff;
+}
