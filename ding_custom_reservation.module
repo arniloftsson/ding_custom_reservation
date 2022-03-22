@@ -9,7 +9,6 @@ define('DING_CUSTOM_RESERVATION_SECONDARY_BUTTON', 1);
 
 /**
  * Implements hook_menu().
- *
  */
 function ding_custom_reservation_menu() {
   $items = array();
@@ -324,7 +323,7 @@ function ding_custom_reservation_log_statistics($form_state) {
     }
   }
   if (empty($material_type) || $interest_period == 0) {
-    // Somethings wrong. Don't log statistics.
+    // Something is wrong. Don't log statistics.
     return;
   }
   if (isset($form_state['input']) && isset($form_state['input']['reservation_type'])) {
@@ -381,8 +380,8 @@ function ding_custom_reservation_interest_periods() {
 /**
  * Utility time function.
  *
- * Effectively returns time() rounded down to nearest day.
+ * Effectively returns time() rounded down to the nearest day.
  */
 function _ding_custom_reservation_get_day() {
-  return mktime(0, 0, 0);;
+  return mktime(0, 0, 0);
 }
