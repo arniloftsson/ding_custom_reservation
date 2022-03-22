@@ -5,7 +5,7 @@
  * Handles installation/un-installation of ding custom reserveration module.
  */
 
-  /**
+/**
  * Implements hook_schema().
  */
 function ding_custom_reservation_schema() {
@@ -50,6 +50,7 @@ function ding_custom_reservation_schema() {
       'id',
     ),
   );
+
   return $schema;
 }
 
@@ -67,5 +68,3 @@ function ding_custom_reservation_uninstall() {
   variable_del('ding_custom_reservation_title_description');
   variable_del('ding_custom_reservation_keep_statistics_days');
 }
-
- 
