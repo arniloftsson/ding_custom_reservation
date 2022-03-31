@@ -19,3 +19,8 @@
   background-color: #808285;
   color: #fff;
 }
+
+form[id^="ding-reservation-reserve-form"] input[type="submit"] {
+	width: auto;
+	padding-right: 80px;
+}
