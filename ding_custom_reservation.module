@@ -109,17 +109,17 @@ function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form
     }
   }
   $title = variable_get('ding_custom_reservation_title_text', t('Reservation'));
-  $description = variable_get('ding_custom_reservation_title_description', '');
+  $description = variable_get('ding_custom_reservation_title_description', ['value' => '']);
 
   $form['customtitle'] = array(
     '#markup' => '<div class="popupbar-title"><h3>' . $title . '</h3></div>',
     '#weight' => '-20',
   );
 
-  if (!empty($description)) {
+  if (!empty($description['value'])) {
     $form['customdescription'] = array(
       '#prefix' => '<div class="form-item form-type-markup description">',
-      '#markup' => check_markup($description),
+      '#markup' => check_markup($description['value'], 'ding_wysiwyg'),
       '#suffix' => '</div>',
       '#weight' => '-10',
     );
