@@ -184,7 +184,7 @@ function ding_custom_reservation_statistics_form_export($form, &$form_state) {
 
     if (isset($data)) {
       $csv_file = fopen($destination, 'w');
-      $file_header = ['Interesseperiode', 'Reserveringstype', 'Materialetype', 'Dato'];
+      $file_header = ['Interesseperiode', 'Reserveringstype', 'Materialetype', 'Klassifikation', 'Dato'];
       fputcsv($csv_file,  $file_header, ',', '"');
       foreach ($data as $record) {
         fputcsv($csv_file, $record, ',', '"');
@@ -212,6 +212,7 @@ function ding_custom_reservation_statistics_get_all_records() {
       'reservationtype',
       'interestperiod',
       'materialtype',
+      'classification',
       'day',
     ]);
 
@@ -223,7 +224,7 @@ function ding_custom_reservation_statistics_get_all_records() {
     if ($data->reservationtype == DING_CUSTOM_RESERVATION_SECONDARY_BUTTON) {
       $reservation_type = 'secondary';
     }
-    $results[] = [$data->interestperiod, $reservation_type, $data->materialtype, $day];
+    $results[] = [$data->interestperiod, $reservation_type, $data->materialtype, $data->classification, $day];
   };
 
   return $results;

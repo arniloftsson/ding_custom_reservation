@@ -310,6 +310,7 @@ function ding_custom_reservation_reserve_form_validate($form, &$form_state) {
  */
 function ding_custom_reservation_log_statistics($form_state) {
   $material_type = '';
+  $classification = '';
   $interest_period = 0;
   $reservation_type = DING_CUSTOM_RESERVATION_PRIMARY_BUTTON;
 
@@ -317,6 +318,7 @@ function ding_custom_reservation_log_statistics($form_state) {
     if (isset($form_state['values']['reservable']) && is_a($form_state['values']['reservable'], 'DingReservationReservableEntity')) {
       $object = $form_state['values']['reservable'];
       $material_type = $object->getEntity()->getType();
+      $classification = $object->getEntity()->getClassification();
     }
     if (isset($form_state['values']['provider_options']) && isset($form_state['values']['provider_options']['interest_period']) ) {
       $interest_period = $form_state['values']['provider_options']['interest_period'];
@@ -330,19 +332,20 @@ function ding_custom_reservation_log_statistics($form_state) {
     $reservation_type = DING_CUSTOM_RESERVATION_SECONDARY_BUTTON;
   }
   $date = _ding_custom_reservation_get_day();
-  ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date);
+  ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date, $classification );
 }
 
 /**
  * Update statistics table.
  */
-function ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date) {
+function ding_custom_reservation_statistics_update_db($reservation_type, $interest_period, $material_type, $date, $classification) {
   try {
     db_insert('ding_custom_reservation_statistics')
     ->fields(array(
         'reservationtype' => $reservation_type,
         'interestperiod' => $interest_period,
         'materialtype' => $material_type,
+        'classification' => $classification,
         'day' => $date,
         ))
     ->execute();

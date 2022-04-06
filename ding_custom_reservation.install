@@ -38,6 +38,13 @@ function ding_custom_reservation_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'classification' => array(
+        'description' => 'The classification off the material',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'day' => array(
         'description' => 'Day query was performed.',
         'type' => 'int',
