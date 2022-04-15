@@ -112,7 +112,7 @@ function ding_custom_reservation_form_ding_reservation_reserve_form_alter(&$form
   $description = variable_get('ding_custom_reservation_title_description', ['value' => '']);
 
   $form['customtitle'] = array(
-    '#markup' => '<div class="popupbar-title"><h3>' . $title . '</h3></div>',
+    '#markup' => '<div class="popupbar-title"><h1>' . $title . '</h1></div>',
     '#weight' => '-20',
   );
 
