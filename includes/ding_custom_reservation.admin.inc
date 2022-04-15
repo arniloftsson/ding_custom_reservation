@@ -33,7 +33,7 @@ function ding_custom_reservation_admin_form($form, &$form_state) {
     '#title' => t('Title off reservation popup'),
     '#default_value' => variable_get('ding_custom_reservation_title_text', t('Reservation')),
   ];
-  file_put_contents("/var/www/drupalvm/drupal/web/debug/custon3.txt", print_r(variable_get('ding_custom_reservation_title_description', ''), TRUE), FILE_APPEND);
+
   $form['ding_custom_reservation_title_description'] = array(
     '#type' => 'text_format',
     '#title' => t('Description off reservation popup'),
