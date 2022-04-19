@@ -29,3 +29,9 @@ form[id^="ding-reservation-reserve-form"] input[type="submit"] {
 	width: auto;
 	padding-right: 80px;
 }
+
+@media screen and (max-width: 600px) {
+  .popupbar {
+    height:60vh !important;
+  }
+}
