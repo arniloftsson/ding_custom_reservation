@@ -30,8 +30,9 @@ form[id^="ding-reservation-reserve-form"] input[type="submit"] {
 	padding-right: 80px;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-height: 750px) and (max-width: 600px) {
   .popupbar {
-    height:60vh !important;
+    height: 100% !important;
+    overflow-y: auto !important;
   }
 }
